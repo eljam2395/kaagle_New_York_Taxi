@@ -1,4 +1,4 @@
-from pyspark.sql.functions import mean, udf
+from pyspark.sql.functions import mean, udf, date_format
 from math import *
 
 
@@ -20,6 +20,11 @@ def haversine_dist(lon1, lat1, lon2, lat2):
 
 
 def mean_speed(df):
+    """ Caculate the mean speed on each drive.
+        in param:
+            dataframe that contains the id the trip duration and the pickup/dropoff coordinates
+        out param:
+            dataframe that contains the id and the mean speed of the drive"""
     udf_distance = udf(haversine_dist)
     distance = df.select(df.id, df.trip_duration.cast('float'), df.pickup_longitude.cast('float'),
                          df.pickup_latitude.cast('float'), df.dropoff_longitude.cast('float'),
@@ -36,3 +41,14 @@ def mean_speed(df):
     df_mean_speed = df_mean_speed.drop(*columns_to_drop)
 
     return df_mean_speed
+
+
+def get_nb_drive_per_day(df):
+    """ calculate the number of drive per day of the week.
+    in param:
+            dataframe that contains the pickup_datetime
+        out param:
+            dataframe that contains the day of the week and the number of courses """
+    day = df.select("pickup_datetime")
+    day = day.withColumn('pickup_datetime', date_format(day.pickup_datetime, "E"))
+    return day.groupBy('pickup_datetime').count()
