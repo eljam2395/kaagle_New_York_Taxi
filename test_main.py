@@ -23,6 +23,9 @@ class TestMain(unittest.TestCase):
         list_driver_per_day = [row["count"] for row in driver_per_day.collect()]
         self.assertEqual(list_driver_per_day, [1356, 1286, 1475, 1514, 1428, 1420, 1520])
 
-
-if __name__ == '__main__':
-    unittest.main()
+    def test_get_nb_drive_per_slice_day(self):
+        nb_drive_per_slice_day = main.get_nb_drive_per_slice_day(self.taxiDf)
+        self.assertEqual(nb_drive_per_slice_day["0-6"], 1422)
+        self.assertEqual(nb_drive_per_slice_day["6-12"], 2643)
+        self.assertEqual(nb_drive_per_slice_day["12-18"], 3092)
+        self.assertEqual(nb_drive_per_slice_day["18-24"], 2842)

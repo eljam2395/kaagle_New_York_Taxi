@@ -52,3 +52,24 @@ def get_nb_drive_per_day(df):
     day = df.select("pickup_datetime")
     day = day.withColumn('pickup_datetime', date_format(day.pickup_datetime, "E"))
     return day.groupBy('pickup_datetime').count()
+
+
+def get_nb_drive_per_slice_day(df):
+    """ calculate the number of drive per slice of day.
+    in param:
+            dataframe that contains the pickup_datetime
+        out param:
+            dictionnary that contains the drive per slice of day """
+
+    hour = df.select("pickup_datetime")
+    hour = hour.withColumn('pickup_datetime', date_format(hour.pickup_datetime, "H"))
+    # 0-6 6-12 12-18 18-24
+
+    zero_to_six = hour.filter(hour.pickup_datetime.between(0, 6)).count()
+    six_to_twelve = hour.filter(hour.pickup_datetime.between(7, 12)).count()
+    twelve_to_eighteen = hour.filter(hour.pickup_datetime.between(13, 18)).count()
+    eighteen_to_twenty_for = hour.filter(hour.pickup_datetime.between(19, 26)).count()
+
+    result = {"0-6": zero_to_six, "6-12": six_to_twelve, "12-18": twelve_to_eighteen, "18-24": eighteen_to_twenty_for}
+
+    return result
